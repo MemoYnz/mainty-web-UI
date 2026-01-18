@@ -36,6 +36,8 @@ export default function MainLayout() {
           {(me?.role === 'Engineer' || me?.role === 'EngineeringManager') && (
             <Link to="/ppm">PPM</Link>
           )}
+
+          <Link to="/createbreakdowns">Create Breakdown</Link>
         </nav>
 
 

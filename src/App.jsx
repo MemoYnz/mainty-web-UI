@@ -10,6 +10,7 @@ import ShiftTasks from './pages/ShiftTasks';
 import PpmPlans from './pages/PpmPlans';
 import NotFound from './pages/NotFound';
 import WorkOrderDetails from './pages/WorkOrderDetails';
+import CreateBreakdowns from './pages/CreateBreakdowns';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           }
         >
           <Route path="/" element={<Dashboard />} />
+          <Route path="/createbreakdowns" element={<CreateBreakdowns />} />
 
           {/* ✅ Only Engineer + EngineeringManager can open WorkOrders list */}
           <Route
