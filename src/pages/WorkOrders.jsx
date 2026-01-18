@@ -54,7 +54,7 @@ export default function WorkOrders() {
 
     if (!authLoading && me) load();
 
-       () => { isMounted = false; };
+    return () => { isMounted = false; };
   }, [authLoading, me, canAccessList, isProductionManager]);
 
   if (authLoading) return <div>Loading...</div>;
