@@ -1,6 +1,9 @@
 import { apiClient } from './apiClient';
 
 // ---- Auth ----
+export const login = (email, password) =>
+  apiClient.post('/api/auth/login', { email, password });
+
 export const getMe = () => apiClient.get('/api/auth/me');
 
 // ---- WorkOrders ----

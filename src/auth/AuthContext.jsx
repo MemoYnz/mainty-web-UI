@@ -5,7 +5,7 @@ import React, {
   useState,
   useCallback
 } from 'react';
-import { getMe } from '../api/endpoints';
+import { getMe, login } from '../api/endpoints';
 
 const AuthContext = createContext(null);
 
@@ -45,10 +45,22 @@ export function AuthProvider({ children }) {
   }, [refreshMe]);
 
   /**
-   * Login (Fake auth)
+   * OLD: Login via X-UserId (keep for dev / fallback)
    */
   const setUserId = async (userId) => {
     localStorage.setItem('userId', String(userId));
+    await refreshMe();
+  };
+
+  /**
+   * NEW: Login via Email + Password
+   */
+  const loginWithEmail = async (email, password) => {
+    const res = await login(email, password);
+
+    // backend returns { userId, fullName, role }
+    localStorage.setItem('userId', String(res.data.userId));
+
     await refreshMe();
   };
 
@@ -67,7 +79,8 @@ export function AuthProvider({ children }) {
         me,
         loading,
         refreshMe,
-        setUserId,
+        setUserId,        // keep old fake login
+        loginWithEmail,   // new email+password login
         logout
       }}
     >
@@ -83,6 +96,7 @@ export function useAuth() {
   }
   return ctx;
 }
+
 
 
 

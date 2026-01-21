@@ -8,14 +8,23 @@ export const apiClient = axios.create({
   }
 });
 
-// Fake auth via X-UserId
-apiClient.interceptors.request.use((config) => {
-  const userId =  localStorage.getItem('userId');
-  if (userId) {
-    config.headers['X-UserId'] = userId;
-  }
-  return config;
-});
+// ----------------------------------------------------
+// Fake auth via X-UserId (MVP)
+// ----------------------------------------------------
+apiClient.interceptors.request.use(
+  (config) => {
+    const userId = localStorage.getItem('userId');
+
+    if (userId) {
+      config.headers = config.headers || {};
+      config.headers['X-UserId'] = userId;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 
 
 // import axios from 'axios';
