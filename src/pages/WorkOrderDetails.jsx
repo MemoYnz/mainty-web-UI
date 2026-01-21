@@ -91,7 +91,7 @@ useEffect(() => {
   // -------------------------
   // Role logic
   // -------------------------
-  const role = me?.role || '';
+  const role = me?.role.name || '';
 
   const isEngineer = role === 'Engineer';
   const isManager = role === 'EngineeringManager';

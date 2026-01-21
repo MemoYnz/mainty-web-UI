@@ -13,62 +13,51 @@ export function AuthProvider({ children }) {
   const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  /**
-   * Loads current user from backend using X-UserId header
-   */
   const refreshMe = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getMe();
       setMe(res.data);
     } catch {
-      // invalid / missing user → force logout state
       setMe(null);
-      localStorage.removeItem('userId');
+      localStorage.removeItem('accessToken');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * App start:
-   * - if userId exists → try load user
-   * - otherwise → unauthenticated state
-   */
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
       refreshMe();
     } else {
       setLoading(false);
     }
   }, [refreshMe]);
 
-  /**
-   * OLD: Login via X-UserId (keep for dev / fallback)
-   */
-  const setUserId = async (userId) => {
-    localStorage.setItem('userId', String(userId));
-    await refreshMe();
-  };
-
-  /**
-   * NEW: Login via Email + Password
-   */
   const loginWithEmail = async (email, password) => {
-    const res = await login(email, password);
+    setLoading(true);
+    try {
+      const safeEmail = String(email || '').trim();
+      const safePassword = String(password || '');
 
-    // backend returns { userId, fullName, role }
-    localStorage.setItem('userId', String(res.data.userId));
+      const res = await login(safeEmail, safePassword);
 
-    await refreshMe();
+      // backend returns { userId, fullName, role, token, expiresInMinutes }
+      localStorage.setItem('accessToken', String(res.data.token || ''));
+
+      await refreshMe();
+    } catch (e) {
+      setMe(null);
+      localStorage.removeItem('accessToken');
+      throw e;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /**
-   * Logout
-   */
   const logout = () => {
-    localStorage.removeItem('userId');
+    localStorage.removeItem('accessToken');
     setMe(null);
     setLoading(false);
   };
@@ -79,8 +68,7 @@ export function AuthProvider({ children }) {
         me,
         loading,
         refreshMe,
-        setUserId,        // keep old fake login
-        loginWithEmail,   // new email+password login
+        loginWithEmail,
         logout
       }}
     >
@@ -96,6 +84,7 @@ export function useAuth() {
   }
   return ctx;
 }
+
 
 
 

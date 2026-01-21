@@ -8,16 +8,21 @@ export const apiClient = axios.create({
   }
 });
 
-// ----------------------------------------------------
-// Fake auth via X-UserId (MVP)
-// ----------------------------------------------------
+// ---------------------------------------
+// Request interceptor
+// - Attach JWT access token to all requests
+//   except /api/auth/login
+// ---------------------------------------
 apiClient.interceptors.request.use(
   (config) => {
-    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('accessToken');
 
-    if (userId) {
+    const url = (config?.url || '').toLowerCase();
+    const isAuthLogin = url.includes('/api/auth/login');
+
+    if (token && !isAuthLogin) {
       config.headers = config.headers || {};
-      config.headers['X-UserId'] = userId;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     return config;
@@ -25,19 +30,23 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// ---------------------------------------
+// Response interceptor
+// - Handle expired / invalid JWT (401)
+// - Force logout and redirect to /login
+// ---------------------------------------
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('accessToken');
 
+      // Hard redirect to login (safe everywhere)
+      window.location.href = '/login';
+    }
 
-// import axios from 'axios';
-// import { API_BASE_URL } from '../config/env';
+    return Promise.reject(error);
+  }
+);
 
-// export const apiClient = axios.create({
-//   baseURL: API_BASE_URL
-// });
-
-// apiClient.interceptors.request.use((config) => {
-//   const userId = localStorage.getItem('userId');
-//   if (userId) {
-//     config.headers['X-UserId'] = userId;
-//   }
-//   return config;
-// });

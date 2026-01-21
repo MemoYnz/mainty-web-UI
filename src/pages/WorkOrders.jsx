@@ -11,7 +11,7 @@ export default function WorkOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const role = me?.role || '';
+  const role = me?.role.name || '';
 
   const isEngineer = role === 'Engineer';
   const isManager = role === 'EngineeringManager';
